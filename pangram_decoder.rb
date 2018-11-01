@@ -11,8 +11,8 @@ file.close
 pangrams = Hash.new()
 
 # This next part strips away all the unwanted characters (white space, commas, quotes, dashes, etc.)
-validCharacters = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0']
-for line in list
+def strip(line)
+    validCharacters = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0']
     newLine = ""
     numberChars = 0
     line.each_char do |character|
@@ -24,7 +24,15 @@ for line in list
             end
         end
     end
+    return numberChars, newLine
+end
+
+for line in list
+    numberChars, newLine = strip(line)
     # This is an if statement, if key in use append, otherwise make new key/value
     pangrams.key?(numberChars) ? pangrams[numberChars].push(newLine) : pangrams[numberChars] = [newLine] 
 end
 
+codedPangram = gets.chomp
+lengthCode, strippedCode = strip(codedPangram)
+puts strippedCode
