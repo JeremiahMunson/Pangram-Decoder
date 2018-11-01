@@ -1,3 +1,9 @@
+# These global variables are the keys/values for the code
+# The key is the code and value is english for codeToEnglish
+# Vice Versa for englishToCode
+$codeToEnglish = Hash.new()
+$englishToCode = Hash.new()
+
 # Reading in the list of pangrams stored in pangrams.txt
 file = File.new("pangrams.txt", "r")
 list = Array.new()
@@ -35,4 +41,25 @@ end
 
 codedPangram = gets.chomp
 lengthCode, strippedCode = strip(codedPangram)
-puts strippedCode
+
+# This uses the codeToEnglish and englishToCode hash tables into a key for the code
+def solveCode(pangram, code)
+    for index in 0..pangram.length
+        char = code[index]
+        letter = pangram[index]
+        if !$codeToEnglish.key?(char) 
+            $codeToEnglish[char] = letter 
+        end
+        if !$englishToCode.key?(letter) 
+            $englishToCode[letter] = char 
+        end
+    end
+end
+
+# Making sure solveCode works
+solveCode(pangrams[26][0], strippedCode)
+for keys,vals in $codeToEnglish
+    break if(vals == nil)
+    comparison = keys + ": " + vals
+    puts comparison
+end
