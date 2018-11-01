@@ -4,17 +4,7 @@
 $codeToEnglish = Hash.new()
 $englishToCode = Hash.new()
 
-# Reading in the list of pangrams stored in pangrams.txt
-file = File.new("pangrams.txt", "r")
-list = Array.new()
-while (line = file.gets)
-    list.push(line)
-end
-file.close
-
-# Want pangrams to be stored in this hash table where the number of characters is the key
-# The value is an array of pangrams with the same length
-pangrams = Hash.new()
+######## Functions #########
 
 # This next part strips away all the unwanted characters (white space, commas, quotes, dashes, etc.)
 def strip(line)
@@ -33,15 +23,6 @@ def strip(line)
     return numberChars, newLine
 end
 
-for line in list
-    numberChars, newLine = strip(line)
-    # This is an if statement, if key in use append, otherwise make new key/value
-    pangrams.key?(numberChars) ? pangrams[numberChars].push(newLine) : pangrams[numberChars] = [newLine] 
-end
-
-codedPangram = gets.chomp
-lengthCode, strippedCode = strip(codedPangram)
-
 # This uses the codeToEnglish and englishToCode hash tables into a key for the code
 def solveCode(pangram, code)
     for index in 0..pangram.length
@@ -56,8 +37,37 @@ def solveCode(pangram, code)
     end
 end
 
-# Making sure solveCode works
+
+##### Program #####
+
+# Reading in the list of pangrams stored in pangrams.txt
+file = File.new("pangrams.txt", "r")
+list = Array.new()
+while (line = file.gets)
+    list.push(line)
+end
+file.close
+
+# Want pangrams to be stored in this hash table where the number of characters is the key
+# The value is an array of pangrams with the same length
+pangrams = Hash.new()
+
+for line in list
+    numberChars, newLine = strip(line)
+    # This is an if statement, if key in use append, otherwise make new key/value
+    pangrams.key?(numberChars) ? pangrams[numberChars].push(newLine) : pangrams[numberChars] = [newLine] 
+end
+
+# Getting the user input code
+codedPangram = gets.chomp
+lengthCode, strippedCode = strip(codedPangram)
+
+
+
+## Making sure solveCode works
 solveCode(pangrams[26][0], strippedCode)
+# Prints code to english comparison
+puts "Code: English"
 for keys,vals in $codeToEnglish
     break if(vals == nil)
     comparison = keys + ": " + vals
