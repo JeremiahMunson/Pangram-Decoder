@@ -54,6 +54,25 @@ def solveCode(pangram, code)
     end
 end
 
+# Prints code to english comparison
+def printCodeToEnglish()
+    puts "Code: English"
+    for keys,vals in $codeToEnglish
+        break if(vals == nil)
+        comparison = keys + ": " + vals
+        puts comparison
+    end
+end
+
+# Prints english to code comparison
+def printCodeToEnglish()
+    puts "English: Code"
+    for keys,vals in $englishToCode
+        break if(vals == nil)
+        comparison = keys + ": " + vals
+        puts comparison
+    end
+end
 
 ##### Program #####
 
@@ -83,10 +102,4 @@ lengthCode, strippedCode = strip(codedPangram)
 
 ## Making sure solveCode works
 solveCode(pangrams[26][0].strippedPangram, strippedCode)
-# Prints code to english comparison
-puts "Code: English"
-for keys,vals in $codeToEnglish
-    break if(vals == nil)
-    comparison = keys + ": " + vals
-    puts comparison
-end
+printCodeToEnglish()
