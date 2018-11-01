@@ -95,17 +95,18 @@ for line in list
 end
 
 # Getting the user input code
-#codedPangram = gets.chomp
-#lengthCode, strippedCode = strip(codedPangram)
+codedPangram = gets.chomp
+lengthCode, strippedCode = strip(codedPangram)
 
 # If the length of the pangram doesn't match the length of any stored pangram it beat the program
-#if(!pangrams.key?(lengthCode))
-#    puts "The input does not match any stored pangram!"
-#else
-#    puts lengthCode
-#    ## Making sure solveCode works
-#    solveCode(pangrams[26][0].strippedPangram, strippedCode)
-#    printCodeToEnglish()
-#end
-
-puts pangrams[25][0].fullPangram
+if(!pangrams.key?(lengthCode))
+    puts "The input does not match any stored pangram!"
+elsif(pangrams[lengthCode].length == 1)
+    puts "Pangram is: ", pangrams[lengthCode][0].fullPangram
+    solveCode(pangrams[lengthCode][0].strippedPangram, strippedCode)
+    printCodeToEnglish()
+else
+    ## Making sure solveCode works
+    solveCode(pangrams[26][0].strippedPangram, strippedCode)
+    printCodeToEnglish()
+end
