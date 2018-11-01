@@ -4,6 +4,23 @@
 $codeToEnglish = Hash.new()
 $englishToCode = Hash.new()
 
+class Pangram
+    def initialize(line)
+        @fullPangram = line
+        @size, @strippedPangram = strip(line)
+    end
+
+    def fullPangram
+        @fullPangram
+    end
+    def strippedPangram
+        @strippedPangram
+    end
+    def size
+        @size
+    end
+end
+
 ######## Functions #########
 
 # This next part strips away all the unwanted characters (white space, commas, quotes, dashes, etc.)
@@ -55,7 +72,7 @@ pangrams = Hash.new()
 for line in list
     numberChars, newLine = strip(line)
     # This is an if statement, if key in use append, otherwise make new key/value
-    pangrams.key?(numberChars) ? pangrams[numberChars].push(newLine) : pangrams[numberChars] = [newLine] 
+    pangrams.key?(numberChars) ? pangrams[numberChars].push(Pangram.new(line)) : pangrams[numberChars] = [Pangram.new(line)] 
 end
 
 # Getting the user input code
@@ -65,7 +82,7 @@ lengthCode, strippedCode = strip(codedPangram)
 
 
 ## Making sure solveCode works
-solveCode(pangrams[26][0], strippedCode)
+solveCode(pangrams[26][0].strippedPangram, strippedCode)
 # Prints code to english comparison
 puts "Code: English"
 for keys,vals in $codeToEnglish
