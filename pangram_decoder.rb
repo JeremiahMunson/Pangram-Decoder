@@ -47,29 +47,34 @@ end
 # This is for when there are multiple pangrams of same length finding which one this is
 def findPangram(code, stripped)
     allPossiblePangrams = $pangrams[stripped.length]
-    sameNumberSpacePangrams = []
+    sameLengthPangrams = Array.new
     for pangramClasses in allPossiblePangrams
-        sameNumberSpacePangrams.push(pangramClasses) if (pangramClasses.fullPangram.length == code.length)
-        puts pangramClasses.fullPangram.size
+        sameLengthPangrams.push(pangramClasses) if (pangramClasses.fullPangram.length == code.length)
     end
-    if sameNumberSpacePangrams.length == 1
-        return sameNumberSpacePangrams[0]
-    elsif sameNumberSpacePangrams.length == 0
+    if sameLengthPangrams.length == 1
+        return sameLengthPangrams[0]
+    elsif sameLengthPangrams.length == 0
         return nil
     else
-        #codeWords: array of words where each 
+        #codeWords: array of arrays of chars where each array of chars is a word
         codeWords = seperateWords(code)
-        print codeWords
-        remainingPangramWords = Array.new
-        remainingPangramNumber = Hash.new
+        #sameLengthArray: array of arrays of arrays of chars where each array of chars is a word and each array of array of chars is a pangram
+        sameLengthArray = Array.new
+        #sameLengthHash: hash where array of arrays of chars (pangram) is key and the index number for sameLengthPangrams is value
+        sameLengthHash = Hash.new
         numberIndex = 0
-        for phrase in sameNumberSpacePangrams
-            remainingPangramWords.push(seperateWords(phrase.fullPangram))
-            remainingPangramNumber[seperateWords(phrase.fullPangram)] = numberIndex
+        # Filling sameLengthArray and sameLengthHash with pangrams
+        for phrase in sameLengthPangrams
+            pangramAsArray = seperateWords(phrase.fullPangram)
+            sameLengthArray.push(pangramAsArray)
+            sameLengthHash[pangramAsArray] = numberIndex
             numberIndex+=1
         end
+
+        #lastChancePangrams: array of arrays of arrays of chars where this is last chance to figure it out (if .length != 1 we don't know)
         lastChancePangrams = []
-        for pangramsRemaining in remainingPangramWords
+        # Filling lastChancePangrams with pangrams that have same word sizes as code
+        for pangramsRemaining in sameLengthArray
             allWordsSameSize = true
             for index in 0..(codeWords.length-1)
                 if codeWords[index].length != pangramsRemaining[index].length
@@ -79,8 +84,10 @@ def findPangram(code, stripped)
             end
             lastChancePangrams.push(pangramsRemaining) if allWordsSameSize
         end
+
+        # We know what the pangram is if lastChancePangrams has .length == 1, otherwise we don't know
         if lastChancePangrams.length == 1
-            foundPangram = sameNumberSpacePangrams[remainingPangramNumber[lastChancePangrams[0]]]
+            foundPangram = sameLengthPangrams[sameLengthHash[lastChancePangrams[0]]]
             return foundPangram
         else
             return nil
