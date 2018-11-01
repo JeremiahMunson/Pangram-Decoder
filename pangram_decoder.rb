@@ -65,7 +65,7 @@ def printCodeToEnglish()
 end
 
 # Prints english to code comparison
-def printCodeToEnglish()
+def printEnglishToCode()
     puts "English: Code"
     for keys,vals in $englishToCode
         break if(vals == nil)
