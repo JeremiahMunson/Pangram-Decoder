@@ -4,6 +4,10 @@
 $codeToEnglish = Hash.new()
 $englishToCode = Hash.new()
 
+# Want pangrams to be stored in this hash table where the number of characters is the key
+# The value is an array of pangrams with the same length
+$pangrams = Hash.new()
+
 class Pangram
     def initialize(line)
         @fullPangram = line
@@ -38,6 +42,22 @@ def strip(line)
         end
     end
     return numberChars, newLine
+end
+
+# This is for when there are multiple pangrams of same length finding which one this is
+def findPangram(code, stripped)
+    allPossiblePangrams = $pangrams[stripped.length]
+    sameNumberSpacePangrams = []
+    for pangramClasses in allPossiblePangrams
+        sameNumberSpacePangrams.push(pangramClasses) if (pangramClasses.fullPangram.length == code.length)
+    end
+    if sameNumberSpacePangrams.length == 1
+        return sameNumberSpacePangrams[0]
+    elsif sameNumberSpacePangrams.length == 0
+        return nil
+    else
+        return nil
+    end
 end
 
 # This uses the codeToEnglish and englishToCode hash tables into a key for the code
@@ -80,18 +100,14 @@ end
 file = File.new("pangrams.txt", "r")
 list = Array.new()
 while (line = file.gets)
-    list.push(line)
+    list.push(line.chomp)
 end
 file.close
-
-# Want pangrams to be stored in this hash table where the number of characters is the key
-# The value is an array of pangrams with the same length
-pangrams = Hash.new()
 
 for line in list
     numberChars, newLine = strip(line)
     # This is an if statement, if key in use append, otherwise make new key/value
-    pangrams.key?(numberChars) ? pangrams[numberChars].push(Pangram.new(line)) : pangrams[numberChars] = [Pangram.new(line)] 
+    $pangrams.key?(numberChars) ? $pangrams[numberChars].push(Pangram.new(line)) : $pangrams[numberChars] = [Pangram.new(line)] 
 end
 
 # Getting the user input code
@@ -99,14 +115,20 @@ codedPangram = gets.chomp
 lengthCode, strippedCode = strip(codedPangram)
 
 # If the length of the pangram doesn't match the length of any stored pangram it beat the program
-if(!pangrams.key?(lengthCode))
+if(!$pangrams.key?(lengthCode))
     puts "The input does not match any stored pangram!"
-elsif(pangrams[lengthCode].length == 1)
-    puts "Pangram is: ", pangrams[lengthCode][0].fullPangram
-    solveCode(pangrams[lengthCode][0].strippedPangram, strippedCode)
+elsif($pangrams[lengthCode].length == 1)
+    puts "Pangram is: ", $pangrams[lengthCode][0].fullPangram
+    solveCode($pangrams[lengthCode][0].strippedPangram, strippedCode)
     printCodeToEnglish()
 else
     ## Making sure solveCode works
-    solveCode(pangrams[26][0].strippedPangram, strippedCode)
-    printCodeToEnglish()
+    usedPangram = findPangram(codedPangram, strippedCode)
+    if (usedPangram == nil)
+        puts "The input does not match any stored pangram!"
+    else
+        puts "Pangram is: ", usedPangram.fullPangram
+        solveCode(usedPangram.strippedPangram, strippedCode)
+        printCodeToEnglish()
+    end
 end
