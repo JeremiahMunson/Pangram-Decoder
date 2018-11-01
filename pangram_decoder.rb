@@ -166,7 +166,35 @@ for line in list
     $pangrams.key?(numberChars) ? $pangrams[numberChars].push(Pangram.new(line)) : $pangrams[numberChars] = [Pangram.new(line)] 
 end
 
+puts "Would you like to test all pangrams to ensure they all work? (Y/N)"
+start = gets.chomp
+start.capitalize!
+
+if (start == 'Y')
+    pangramNumber = 1
+    for codedPangram in list
+        lengthCode, strippedCode = strip(codedPangram)
+
+        # If the length of the pangram doesn't match the length of any stored pangram it beat the program
+        if(!$pangrams.key?(lengthCode))
+            puts "The input does not match any stored pangram!"
+        elsif($pangrams[lengthCode].length == 1)
+            puts pangramNumber.to_s + ":Success" #$pangrams[lengthCode][0].fullPangram
+        else
+            ## Making sure solveCode works
+            usedPangram = findPangram(codedPangram, strippedCode)
+            if (usedPangram == nil)
+                puts "Repeat char size, total size, and individual word sizes!"
+            else
+                puts pangramNumber.to_s + ":Success" #usedPangram.fullPangram
+            end
+        end
+        pangramNumber+=1
+    end
+end
+
 # Getting the user input code
+puts "Please input coded pangram (do not include any hyphens, commas, quotes, periods, etc. only the 'letters' and spaces):"
 codedPangram = gets.chomp
 lengthCode, strippedCode = strip(codedPangram)
 
