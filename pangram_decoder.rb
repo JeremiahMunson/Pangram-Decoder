@@ -50,14 +50,63 @@ def findPangram(code, stripped)
     sameNumberSpacePangrams = []
     for pangramClasses in allPossiblePangrams
         sameNumberSpacePangrams.push(pangramClasses) if (pangramClasses.fullPangram.length == code.length)
+        puts pangramClasses.fullPangram.size
     end
     if sameNumberSpacePangrams.length == 1
         return sameNumberSpacePangrams[0]
     elsif sameNumberSpacePangrams.length == 0
         return nil
     else
-        return nil
+        #codeWords: array of words where each 
+        codeWords = seperateWords(code)
+        print codeWords
+        remainingPangramWords = Array.new
+        remainingPangramNumber = Hash.new
+        numberIndex = 0
+        for phrase in sameNumberSpacePangrams
+            remainingPangramWords.push(seperateWords(phrase.fullPangram))
+            remainingPangramNumber[seperateWords(phrase.fullPangram)] = numberIndex
+            numberIndex+=1
+        end
+        lastChancePangrams = []
+        for pangramsRemaining in remainingPangramWords
+            allWordsSameSize = true
+            for index in 0..(codeWords.length-1)
+                if codeWords[index].length != pangramsRemaining[index].length
+                    allWordsSameSize = false
+                    break
+                end
+            end
+            lastChancePangrams.push(pangramsRemaining) if allWordsSameSize
+        end
+        if lastChancePangrams.length == 1
+            foundPangram = sameNumberSpacePangrams[remainingPangramNumber[lastChancePangrams[0]]]
+            return foundPangram
+        else
+            return nil
+        end
     end
+end
+
+def seperateWords(phrase)
+    validCharacters = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0']
+    words = []
+    word = []
+    phrase.each_char do |character|
+        found = false
+        for valid in validCharacters
+            if (character == valid)
+                word.push(character)
+                found = true
+                break
+            end
+        end
+        if(!found && word.length > 0)
+            words.push(word)
+            word = []
+        end
+    end
+    return words
 end
 
 # This uses the codeToEnglish and englishToCode hash tables into a key for the code
