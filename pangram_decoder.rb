@@ -29,8 +29,10 @@ end
 
 # This next part strips away all the unwanted characters (white space, commas, quotes, dashes, etc.)
 def strip(line)
+    # The only characters we care about are letters and numbers if the user wants to user numbers as part of the code
     validCharacters = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0']
-    newLine = ""
+    #strippedLine: line with all the invalid characters stripped away. Just letters and numbers
+    strippedLine = String.new()
     numberChars = 0
     line.each_char do |character|
         for valid in validCharacters
@@ -41,7 +43,7 @@ def strip(line)
             end
         end
     end
-    return numberChars, newLine
+    return numberChars, strippedLine
 end
 
 # This is for when there are multiple pangrams of same length finding which one this is
@@ -85,6 +87,7 @@ def findPangram(code, stripped)
         # Filling lastChancePangrams with pangrams that have same word sizes as code
         for pangramsRemaining in sameLengthArray
             allWordsSameSize = true
+            # don't need to check last word because if all words leading up to the last word match AND stripped length matches AND full length matches the last word must match
             for index in 0..(codeWords.length-1)
                 if codeWords[index].length != pangramsRemaining[index].length
                     allWordsSameSize = false
@@ -105,12 +108,17 @@ def findPangram(code, stripped)
 end
 
 def seperateWords(phrase)
+    # The only characters we care about are letters and numbers if the user wants to user numbers as part of the code
     validCharacters = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0']
-    words = Array.new()
+    #word: array of characters where the array is a word
     word = Array.new()
+    #words: array of arrays of characters where array of characters is a word 
+    words = Array.new()
+    # Filling words
     phrase.each_char do |character|
         found = false
         for valid in validCharacters
+            # A space or hyphen should seperate words
             if (character == valid)
                 word.push(character)
                 found = true
@@ -127,6 +135,7 @@ end
 
 # This uses the codeToEnglish and englishToCode hash tables into a key for the code
 def solveCode(pangram, code)
+    # did 'index in 0..pangram.length' instead of 'something in pangram' because it needs to go through pangram and code together and index like this works for both
     for index in 0..pangram.length
         char = code[index]
         letter = pangram[index]
