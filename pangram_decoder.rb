@@ -43,64 +43,66 @@ def strip(line)
     return strippedLine
 end
 
-# This is for when there are multiple pangrams of same length finding which one this is
-def findPangram(code, stripped)
+def findPangramsSameTotalLength(code)
     #allPossiblePangrams: array of classes that pangram have same number of letters as coded pangram
-    allPossiblePangrams = $pangrams[stripped.length]
+    allPossiblePangrams = $pangrams[code.strippedPangram.length]
     #sameLengthPangrams: array of classes that pangram full length is equal to full length of coded pangram
     sameLengthPangrams = Array.new()
     for pangramClasses in allPossiblePangrams
-        sameLengthPangrams.push(pangramClasses) if (pangramClasses.fullPangram.length == code.length)
+        sameLengthPangrams.push(pangramClasses) if (pangramClasses.fullPangram.length == code.fullPangram.length)
+    end
+    return sameLengthPangrams
+end
+
+# This is for when there are multiple pangrams of same length finding which one this is
+# It checks the size of the words of the pangrams and the coded pangram and compares them
+# The pangram with same word sizes must be the pangram. If multiple or none can't decide which pangram it is
+def findPangramSameWords(code, pangrams)
+    #codeWords: array of arrays of chars where each array of chars is a word
+    codeWords = seperateWords(code.fullPangram)
+    #sameLengthArray: array of arrays of arrays of chars where each array of chars is a word and each array of array of chars is a pangram
+    sameLengthArray = Array.new()
+    #sameLengthHash: hash where array of arrays of chars (pangram) is key and the index number for sameLengthPangrams is value
+    sameLengthHash = Hash.new()
+    
+    # Filling sameLengthArray and sameLengthHash with pangrams
+    numberIndex = 0
+    for phrase in pangrams
+        pangramAsArray = seperateWords(phrase.fullPangram)
+        sameLengthArray.push(pangramAsArray)
+        sameLengthHash[pangramAsArray] = numberIndex
+        numberIndex+=1
     end
 
-    # If only 1 pangram that has same number of letters AND is the same length with spaces it must be that pangram
-    # If there are no pangrams that have the same number of letters AND is the same length with spaces then the program can't figure out what pangram it is
-    if sameLengthPangrams.length == 1
-        return sameLengthPangrams[0]
-    elsif sameLengthPangrams.length == 0
-        return nil
-
-    # This else is for when there are multiple pangrams of same length both stripped and full
-    # It checks the size of the words of the pangrams and the coded pangram and compares them
-    # The pangram with same word sizes must be the pangram. If multiple or none can't decide which pangram it is
-    else
-        #codeWords: array of arrays of chars where each array of chars is a word
-        codeWords = seperateWords(code)
-        #sameLengthArray: array of arrays of arrays of chars where each array of chars is a word and each array of array of chars is a pangram
-        sameLengthArray = Array.new()
-        #sameLengthHash: hash where array of arrays of chars (pangram) is key and the index number for sameLengthPangrams is value
-        sameLengthHash = Hash.new()
-        numberIndex = 0
-        # Filling sameLengthArray and sameLengthHash with pangrams
-        for phrase in sameLengthPangrams
-            pangramAsArray = seperateWords(phrase.fullPangram)
-            sameLengthArray.push(pangramAsArray)
-            sameLengthHash[pangramAsArray] = numberIndex
-            numberIndex+=1
-        end
-
-        #lastChancePangrams: array of arrays of arrays of chars where this is last chance to figure it out (if .length != 1 we don't know)
-        lastChancePangrams = Array.new()
-        # Filling lastChancePangrams with pangrams that have same word sizes as code
-        for pangramsRemaining in sameLengthArray
-            allWordsSameSize = true
-            # don't need to check last word because if all words leading up to the last word match AND stripped length matches AND full length matches the last word must match
-            for index in 0..(codeWords.length-1)
-                if codeWords[index].length != pangramsRemaining[index].length
-                    allWordsSameSize = false
-                    break
-                end
+    #sameWordsPangrams: array of arrays of arrays of chars where this is last chance to figure it out (if .length != 1 we don't know)
+    sameWordsPangrams = Array.new()
+    # Filling sameWordsPangrams with pangrams that have same word sizes as code
+    for pangramsRemaining in sameLengthArray
+        allWordsSameSize = true
+        # don't need to check last word because if all words leading up to the last word match AND stripped length matches AND full length matches the last word must match
+        for index in 0..(codeWords.length-1)
+            if codeWords[index].length != pangramsRemaining[index].length
+                allWordsSameSize = false
+                break
             end
-            lastChancePangrams.push(pangramsRemaining) if allWordsSameSize
         end
+        sameWordsPangrams.push(pangramsRemaining) if allWordsSameSize
+    end
 
-        # We know what the pangram is if lastChancePangrams has .length == 1, otherwise we don't know
-        if lastChancePangrams.length == 1
-            foundPangram = sameLengthPangrams[sameLengthHash[lastChancePangrams[0]]]
-            return foundPangram
-        else
-            return nil
+    # We know what the pangram is if sameWordsPangrams has .length == 1
+    if sameWordsPangrams.length == 1
+        returnValue = [pangrams[sameLengthHash[sameWordsPangrams[0]]]]
+        return returnValue
+    # If there are multiple that match this we can check for repeating letters to compare??
+    elsif sameWordsPangrams.length > 1
+        returnValue = Array.new()
+        for index in 0..(sameWordsPangrams.length-1)
+            returnValue.push(pangrams[sameLengthHash[sameWordsPangrams[index]]])
         end
+        return returnValue
+    # Otherwise we don't know
+    else
+        return nil
     end
 end
 
@@ -163,6 +165,7 @@ def printEnglishToCode()
     end
 end
 
+## May not work after changes
 def TestPangrams()
     pangramNumber = 1
     for codedPangram in list
@@ -188,7 +191,7 @@ end
 
 ##### Program #####
 
-# Loading pangrams and making pangrams into pangram objects w/ stripped pangrams
+################### Loading pangrams and making pangrams into pangram objects w/ stripped pangrams###################
 file = File.new("pangrams.txt", "r")
 list = Array.new()
 while (line = file.gets)
@@ -202,7 +205,7 @@ for line in list
     $pangrams.key?(newLine.length) ? $pangrams[newLine.length].push(Pangram.new(line)) : $pangrams[newLine.length] = [Pangram.new(line)] 
 end
 
-# Getting the user input code
+###################### Getting the user input code ##############################
 puts "Please input coded pangram (do not include any hyphens, commas, quotes, periods, etc. only the 'letters' and spaces):"
 codedPangram = gets.chomp
 
@@ -234,21 +237,45 @@ end
 
 code = Pangram.new(codedPangram)
 
-# If the length of the pangram doesn't match the length of any stored pangram it beat the program
+
+###### If the length of the pangram doesn't match the length of any stored pangram it beat the program
 if(!$pangrams.key?(code.strippedPangram.length))
     puts "The input does not match any stored pangram!"
+
+###### If the character length of the coded pangram matches only one stored pangram it must be that pangram
 elsif($pangrams[code.strippedPangram.length].length == 1)
     puts "Pangram is: ", $pangrams[code.strippedPangram.length][0].fullPangram
     solveCode($pangrams[code.strippedPangram.length][0].strippedPangram, code.strippedPangram)
     printCodeToEnglish()
+
+###### Otherwise considering pangrams of the same character length...
 else
-    ## Making sure solveCode works
-    usedPangram = findPangram(codedPangram, code.strippedPangram)
-    if (usedPangram == nil)
-        puts "The input does not match any stored pangram!"
-    else
-        puts "Pangram is: ", usedPangram.fullPangram
-        solveCode(usedPangram.strippedPangram, code.strippedPangram)
+    sameLengthPangrams = findPangramsSameTotalLength(code)
+    
+    ###### If the total length of the coded pangram matches only one stored pangram it must be that pangram 
+    if(sameLengthPangrams.length == 1)
+        puts "Pangram is: ", sameLengthPangrams.fullPangram
+        solveCode(sameLengthPangrams.strippedPangram, code.strippedPangram)
         printCodeToEnglish()
+    
+    ###### If the total length of the coded pangram doesn't match any pangrams it beat the program
+    elsif(sameLengthPangrams.length == 0)
+        puts "The input does not match any stored pangram!"
+    
+    ###### Otherwise considering only pangrams of the same character length and total length...
+    else
+        usedPangrams = findPangramSameWords(code, sameLengthPangrams)
+
+        ###### If there are no saved pangrams that match the word lengths it beat the program
+        if (usedPangrams == nil || usedPangrams.length > 1)
+            puts "The input does not match any stored pangram!"
+
+        ###### If there is a single pangram found
+        elsif(usedPangrams.length == 1)
+            usedPangram = usedPangrams[0]
+            puts "Pangram is: ", usedPangram.fullPangram
+            solveCode(usedPangram.strippedPangram, code.strippedPangram)
+            printCodeToEnglish()
+        end
     end
 end
