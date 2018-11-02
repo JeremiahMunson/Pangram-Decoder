@@ -8,10 +8,14 @@ $englishToCode = Hash.new()
 # The value is an array of pangrams with the same length
 $pangrams = Hash.new()
 
+
+# The only characters we care about are letters and numbers if the user wants to user numbers as part of the code
+$validCharacters = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z']
+
 class Pangram
     def initialize(line)
         @fullPangram = line
-        @size, @strippedPangram = strip(line)
+        @strippedPangram = strip(line)
     end
 
     def fullPangram
@@ -20,30 +24,23 @@ class Pangram
     def strippedPangram
         @strippedPangram
     end
-    def size
-        @size
-    end
 end
 
 ######## Functions #########
 
 # This next part strips away all the unwanted characters (white space, commas, quotes, dashes, etc.)
 def strip(line)
-    # The only characters we care about are letters and numbers if the user wants to user numbers as part of the code
-    validCharacters = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0']
     #strippedLine: line with all the invalid characters stripped away. Just letters and numbers
     strippedLine = String.new()
-    numberChars = 0
     line.each_char do |character|
-        for valid in validCharacters
+        for valid in $validCharacters
             if (character == valid) 
                 strippedLine+=character
-                numberChars+=1
                 break
             end
         end
     end
-    return numberChars, strippedLine
+    return strippedLine
 end
 
 # This is for when there are multiple pangrams of same length finding which one this is
@@ -108,8 +105,6 @@ def findPangram(code, stripped)
 end
 
 def seperateWords(phrase)
-    # The only characters we care about are letters and numbers if the user wants to user numbers as part of the code
-    validCharacters = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0']
     #word: array of characters where the array is a word
     word = Array.new()
     #words: array of arrays of characters where array of characters is a word 
@@ -117,7 +112,7 @@ def seperateWords(phrase)
     # Filling words
     phrase.each_char do |character|
         found = false
-        for valid in validCharacters
+        for valid in $validCharacters
             # A space or hyphen should seperate words
             if (character == valid)
                 word.push(character)
@@ -170,7 +165,7 @@ end
 
 ##### Program #####
 
-# Reading in the list of pangrams stored in pangrams.txt
+# Loading pangrams and making pangrams into pangram objects w/ stripped pangrams
 file = File.new("pangrams.txt", "r")
 list = Array.new()
 while (line = file.gets)
@@ -179,11 +174,12 @@ end
 file.close
 
 for line in list
-    numberChars, newLine = strip(line)
+    newLine = strip(line)
     # This is an if statement, if key in use append, otherwise make new key/value
-    $pangrams.key?(numberChars) ? $pangrams[numberChars].push(Pangram.new(line)) : $pangrams[numberChars] = [Pangram.new(line)] 
+    $pangrams.key?(newLine.length) ? $pangrams[newLine.length].push(Pangram.new(line)) : $pangrams[newLine.length] = [Pangram.new(line)] 
 end
 
+=begin
 puts "Would you like to test all pangrams to ensure they all work? (Y/N)"
 start = gets.chomp
 start.capitalize!
@@ -191,7 +187,7 @@ start.capitalize!
 if (start == 'Y')
     pangramNumber = 1
     for codedPangram in list
-        lengthCode, strippedCode = strip(codedPangram)
+        strippedCode = strip(codedPangram)
 
         # If the length of the pangram doesn't match the length of any stored pangram it beat the program
         if(!$pangrams.key?(lengthCode))
@@ -210,27 +206,55 @@ if (start == 'Y')
         pangramNumber+=1
     end
 end
+=end
 
 # Getting the user input code
 puts "Please input coded pangram (do not include any hyphens, commas, quotes, periods, etc. only the 'letters' and spaces):"
 codedPangram = gets.chomp
-lengthCode, strippedCode = strip(codedPangram)
+
+####################### CLEANING USER INPUT CODED PANGRAM ##################################
+## Need to clean the input so that checking the full length against pangram full lengths is accurate
+codedPangram = codedPangram.tr('\'', '')
+codedPangram.downcase!
+# Removing unwanted characters and replacing them with whitespace
+for index in 0..(codedPangram.length - 1)
+    invalid = true
+    for valid in $validCharacters
+        if valid == codedPangram[index]
+            invalid = false
+            break
+        end
+    end
+    if invalid
+        codedPangram[index] = " "
+    end
+end
+# Removing extra whitespace at beginning an end
+codedPangram.strip!
+# Removing back to back whitespaces
+for index in 0..(codedPangram.length-2)
+    if ((codedPangram[index] == " " && codedPangram[index+1] == " " )|| (codedPangram[index] == " " && codedPangram[index-1] == " " ))
+        codedPangram[index] = ''
+    end
+end
+
+code = Pangram.new(codedPangram)
 
 # If the length of the pangram doesn't match the length of any stored pangram it beat the program
-if(!$pangrams.key?(lengthCode))
+if(!$pangrams.key?(code.strippedPangram.length))
     puts "The input does not match any stored pangram!"
-elsif($pangrams[lengthCode].length == 1)
-    puts "Pangram is: ", $pangrams[lengthCode][0].fullPangram
-    solveCode($pangrams[lengthCode][0].strippedPangram, strippedCode)
+elsif($pangrams[code.strippedPangram.length].length == 1)
+    puts "Pangram is: ", $pangrams[code.strippedPangram.length][0].fullPangram
+    solveCode($pangrams[code.strippedPangram.length][0].strippedPangram, code.strippedPangram)
     printCodeToEnglish()
 else
     ## Making sure solveCode works
-    usedPangram = findPangram(codedPangram, strippedCode)
+    usedPangram = findPangram(codedPangram, code.strippedPangram)
     if (usedPangram == nil)
         puts "The input does not match any stored pangram!"
     else
         puts "Pangram is: ", usedPangram.fullPangram
-        solveCode(usedPangram.strippedPangram, strippedCode)
+        solveCode(usedPangram.strippedPangram, code.strippedPangram)
         printCodeToEnglish()
     end
 end
