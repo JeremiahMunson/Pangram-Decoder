@@ -37,7 +37,7 @@ def strip(line)
     line.each_char do |character|
         for valid in validCharacters
             if (character == valid) 
-                newLine+=character
+                strippedLine+=character
                 numberChars+=1
                 break
             end
