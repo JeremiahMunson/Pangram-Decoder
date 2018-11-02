@@ -163,28 +163,7 @@ def printEnglishToCode()
     end
 end
 
-##### Program #####
-
-# Loading pangrams and making pangrams into pangram objects w/ stripped pangrams
-file = File.new("pangrams.txt", "r")
-list = Array.new()
-while (line = file.gets)
-    list.push(line.chomp)
-end
-file.close
-
-for line in list
-    newLine = strip(line)
-    # This is an if statement, if key in use append, otherwise make new key/value
-    $pangrams.key?(newLine.length) ? $pangrams[newLine.length].push(Pangram.new(line)) : $pangrams[newLine.length] = [Pangram.new(line)] 
-end
-
-=begin
-puts "Would you like to test all pangrams to ensure they all work? (Y/N)"
-start = gets.chomp
-start.capitalize!
-
-if (start == 'Y')
+def TestPangrams()
     pangramNumber = 1
     for codedPangram in list
         strippedCode = strip(codedPangram)
@@ -206,7 +185,22 @@ if (start == 'Y')
         pangramNumber+=1
     end
 end
-=end
+
+##### Program #####
+
+# Loading pangrams and making pangrams into pangram objects w/ stripped pangrams
+file = File.new("pangrams.txt", "r")
+list = Array.new()
+while (line = file.gets)
+    list.push(line.chomp)
+end
+file.close
+
+for line in list
+    newLine = strip(line)
+    # This is an if statement, if key in use append, otherwise make new key/value
+    $pangrams.key?(newLine.length) ? $pangrams[newLine.length].push(Pangram.new(line)) : $pangrams[newLine.length] = [Pangram.new(line)] 
+end
 
 # Getting the user input code
 puts "Please input coded pangram (do not include any hyphens, commas, quotes, periods, etc. only the 'letters' and spaces):"
