@@ -46,22 +46,31 @@ end
 
 # This is for when there are multiple pangrams of same length finding which one this is
 def findPangram(code, stripped)
+    #allPossiblePangrams: array of classes that pangram have same number of letters as coded pangram
     allPossiblePangrams = $pangrams[stripped.length]
-    sameLengthPangrams = Array.new
+    #sameLengthPangrams: array of classes that pangram full length is equal to full length of coded pangram
+    sameLengthPangrams = Array.new()
     for pangramClasses in allPossiblePangrams
         sameLengthPangrams.push(pangramClasses) if (pangramClasses.fullPangram.length == code.length)
     end
+
+    # If only 1 pangram that has same number of letters AND is the same length with spaces it must be that pangram
+    # If there are no pangrams that have the same number of letters AND is the same length with spaces then the program can't figure out what pangram it is
     if sameLengthPangrams.length == 1
         return sameLengthPangrams[0]
     elsif sameLengthPangrams.length == 0
         return nil
+
+    # This else is for when there are multiple pangrams of same length both stripped and full
+    # It checks the size of the words of the pangrams and the coded pangram and compares them
+    # The pangram with same word sizes must be the pangram. If multiple or none can't decide which pangram it is
     else
         #codeWords: array of arrays of chars where each array of chars is a word
         codeWords = seperateWords(code)
         #sameLengthArray: array of arrays of arrays of chars where each array of chars is a word and each array of array of chars is a pangram
-        sameLengthArray = Array.new
+        sameLengthArray = Array.new()
         #sameLengthHash: hash where array of arrays of chars (pangram) is key and the index number for sameLengthPangrams is value
-        sameLengthHash = Hash.new
+        sameLengthHash = Hash.new()
         numberIndex = 0
         # Filling sameLengthArray and sameLengthHash with pangrams
         for phrase in sameLengthPangrams
@@ -72,7 +81,7 @@ def findPangram(code, stripped)
         end
 
         #lastChancePangrams: array of arrays of arrays of chars where this is last chance to figure it out (if .length != 1 we don't know)
-        lastChancePangrams = []
+        lastChancePangrams = Array.new()
         # Filling lastChancePangrams with pangrams that have same word sizes as code
         for pangramsRemaining in sameLengthArray
             allWordsSameSize = true
@@ -97,8 +106,8 @@ end
 
 def seperateWords(phrase)
     validCharacters = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0']
-    words = []
-    word = []
+    words = Array.new()
+    word = Array.new()
     phrase.each_char do |character|
         found = false
         for valid in validCharacters
@@ -110,7 +119,7 @@ def seperateWords(phrase)
         end
         if(!found && word.length > 0)
             words.push(word)
-            word = []
+            word = Array.new()
         end
     end
     return words
