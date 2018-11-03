@@ -190,7 +190,43 @@ def TestPangrams()
 end
 
 def checkRepeat(code, pangrams)
-    return pangrams[0]
+    codeRepeats = Repeats(code)
+
+    possiblePangrams = Array.new()
+
+    for pangram in pangrams
+        pangramRepeats = Repeats(pangram)
+
+        for index in (0..codeRepeats.length - 1)
+            differentRepeats = true
+            for jindex in 0..(pangramRepeats.length - 1)
+                differentRepeats = false if (codeRepeats[index] == pangramRepeats[jindex])
+            end
+            if differentRepeats
+                break
+                # differentRepeats is then 'true' when it goes to checking if the pangram should be added to possiblePangrams
+            end
+        end
+        # if the all the repeats are good differentRepeats will be false. if any repeats don't match up the loop above was broken and it's true
+        possiblePangrams.push(pangram) if(!differentRepeats)
+    end
+    (possiblePangrams.length > 0) ? (return pangrams[0]) : (return nil)
+end
+
+def Repeats(phrase)
+    phraseLetters = Hash.new()
+    phrase.strippedPangram.each_char do |character|
+        phraseLetters.has_key?(character) ? phraseLetters[character]+=1 : phraseLetters[character] = 0
+    end
+    phraseRepeats = Array.new()
+    for letters in phraseLetters
+        if letters.length > 1
+            phraseRepeats.push(letters)
+        elsif letters.length < 1
+            puts "PROBLEM!"
+        end
+    end
+    return phraseRepeats
 end
 
 ##### Program #####
@@ -262,9 +298,6 @@ else
     ###### If the total length of the coded pangram matches only one stored pangram it must be that pangram 
     if(sameLengthPangrams.length == 1)
         usedPangrams = [sameLengthPangrams]
-        #puts "Pangram is: ", sameLengthPangrams.fullPangram
-        #solveCode(sameLengthPangrams.strippedPangram, code.strippedPangram)
-        #printCodeToEnglish()
     
     ###### If the total length of the coded pangram doesn't match any pangrams it beat the program
     elsif(sameLengthPangrams.length == 0)
@@ -276,7 +309,7 @@ else
         usedPangrams = findPangramSameWords(code, sameLengthPangrams)
 
         ###### If there are no saved pangrams that match the word lengths it beat the program
-        if (usedPangrams == nil)# || usedPangrams.length > 1)
+        if (usedPangrams == nil)
             puts "The word sizes and order for the input does not match any stored pangram!"
             alreadyLost = true
             # No if/else for if there was a pangram found because either way it'll go into the checkRepeat section right after this
