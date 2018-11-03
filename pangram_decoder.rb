@@ -215,21 +215,23 @@ end
 
 def Repeats(phrase)
     phraseLetters = Hash.new()
-    phrase.strippedPangram.each_char do |character|
-        phraseLetters.has_key?(character) ? phraseLetters[character]+=1 : phraseLetters[character] = 0
+    #phrase.strippedPangram.each_char do |character|
+    for index in 0..(phrase.strippedPangram.length - 1)
+        character = phrase.strippedPangram[index]
+        phraseLetters.has_key?(character) ? phraseLetters[character].push(index) : phraseLetters[character] = [index]
     end
     phraseRepeats = Array.new()
-    for letters in phraseLetters
-        if letters.length > 1
-            phraseRepeats.push(letters)
-        elsif letters.length < 1
+    for letters, placement in phraseLetters
+        if placement.length > 1
+            phraseRepeats.push(placement)
+        elsif placement.length < 1
             puts "PROBLEM!"
         end
     end
     return phraseRepeats
 end
 
-##### Program #####
+############################################### Program ####################################################################
 
 ################### Loading pangrams and making pangrams into pangram objects w/ stripped pangrams###################
 file = File.new("pangrams.txt", "r")
@@ -318,7 +320,19 @@ else
 end
 
 if(!alreadyLost)
-    foundPangram = checkRepeat(code, usedPangrams)
+    # No need to check repeat letters if there are no repeated letters
+    if(code.strippedPangram.length != 26)
+        foundPangram = checkRepeat(code, usedPangrams)
+
+    # If only 1 believed pangram it must be that one (as far as the program can tell)
+    elsif(usedPangrams.length = 1)
+        foundPangram = usedPangrams[0]
+
+    # If more than (or less than somehow) possible pangrams the program cannot determine which pangram was used
+    else
+        foundPangram = nil
+    end
+
     if (foundPangram != nil)
         puts "Pangram is: ", foundPangram.fullPangram
         solveCode(code.strippedPangram, foundPangram.strippedPangram)
