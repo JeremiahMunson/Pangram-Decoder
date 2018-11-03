@@ -131,7 +131,7 @@ def seperateWords(phrase)
 end
 
 # This uses the codeToEnglish and englishToCode hash tables into a key for the code
-def solveCode(pangram, code)
+def solveCode(code, pangram)
     # did 'index in 0..pangram.length' instead of 'something in pangram' because it needs to go through pangram and code together and index like this works for both
     for index in 0..pangram.length
         char = code[index]
@@ -189,6 +189,10 @@ def TestPangrams()
     end
 end
 
+def checkRepeat(code, pangrams)
+    return pangrams[0]
+end
+
 ##### Program #####
 
 ################### Loading pangrams and making pangrams into pangram objects w/ stripped pangrams###################
@@ -237,16 +241,19 @@ end
 
 code = Pangram.new(codedPangram)
 
+alreadyLost = false
+
+##usedPangrams: the pangrams that the program thinks were used that the program then checks to make sure repeated letters/symbols are correct
+#   it is very unlikely that there would be more than 1 pangram in this but just in case this is a good way to try and figure it out
 
 ###### If the length of the pangram doesn't match the length of any stored pangram it beat the program
 if(!$pangrams.key?(code.strippedPangram.length))
-    puts "The input does not match any stored pangram!"
+    puts "The number of characters in the input does not match any stored pangram!"
+    alreadyLost = true
 
 ###### If the character length of the coded pangram matches only one stored pangram it must be that pangram
 elsif($pangrams[code.strippedPangram.length].length == 1)
-    puts "Pangram is: ", $pangrams[code.strippedPangram.length][0].fullPangram
-    solveCode($pangrams[code.strippedPangram.length][0].strippedPangram, code.strippedPangram)
-    printCodeToEnglish()
+    usedPangrams = [$pangrams[code.strippedPangram.length][0]]
 
 ###### Otherwise considering pangrams of the same character length...
 else
@@ -254,28 +261,36 @@ else
     
     ###### If the total length of the coded pangram matches only one stored pangram it must be that pangram 
     if(sameLengthPangrams.length == 1)
-        puts "Pangram is: ", sameLengthPangrams.fullPangram
-        solveCode(sameLengthPangrams.strippedPangram, code.strippedPangram)
-        printCodeToEnglish()
+        usedPangrams = [sameLengthPangrams]
+        #puts "Pangram is: ", sameLengthPangrams.fullPangram
+        #solveCode(sameLengthPangrams.strippedPangram, code.strippedPangram)
+        #printCodeToEnglish()
     
     ###### If the total length of the coded pangram doesn't match any pangrams it beat the program
     elsif(sameLengthPangrams.length == 0)
-        puts "The input does not match any stored pangram!"
+        puts "The full length of the input does not match any stored pangram!"
+        alreadyLost = true
     
     ###### Otherwise considering only pangrams of the same character length and total length...
     else
         usedPangrams = findPangramSameWords(code, sameLengthPangrams)
 
         ###### If there are no saved pangrams that match the word lengths it beat the program
-        if (usedPangrams == nil || usedPangrams.length > 1)
-            puts "The input does not match any stored pangram!"
-
-        ###### If there is a single pangram found
-        elsif(usedPangrams.length == 1)
-            usedPangram = usedPangrams[0]
-            puts "Pangram is: ", usedPangram.fullPangram
-            solveCode(usedPangram.strippedPangram, code.strippedPangram)
-            printCodeToEnglish()
+        if (usedPangrams == nil)# || usedPangrams.length > 1)
+            puts "The word sizes and order for the input does not match any stored pangram!"
+            alreadyLost = true
+            # No if/else for if there was a pangram found because either way it'll go into the checkRepeat section right after this
         end
+    end
+end
+
+if(!alreadyLost)
+    foundPangram = checkRepeat(code, usedPangrams)
+    if (foundPangram != nil)
+        puts "Pangram is: ", foundPangram.fullPangram
+        solveCode(code.strippedPangram, foundPangram.strippedPangram)
+        printCodeToEnglish
+    else
+        puts "Cannot confidently determine the pangram."
     end
 end
