@@ -158,9 +158,8 @@ end
 # Prints english to code comparison
 def printEnglishToCode()
     puts "English: Code"
-    for keys,vals in $englishToCode
-        break if(vals == nil)
-        comparison = keys + ": " + vals
+    for valid in $validCharacters
+        comparison = valid + ": " + $englishToCode[valid]
         puts comparison
     end
 end
@@ -249,45 +248,60 @@ end
 
 ###################### Getting the user input code ##############################
 puts "Please input coded pangram (do not include any hyphens, commas, quotes, periods, etc. only the 'letters' and spaces):"
-codedPangram = gets.chomp
 
-####################### CLEANING USER INPUT CODED PANGRAM ##################################
-## Need to clean the input so that checking the full length against pangram full lengths is accurate
-codedPangram = codedPangram.tr('\'', '')
-codedPangram.downcase!
-# Removing unwanted characters and replacing them with whitespace
-for index in 0..(codedPangram.length - 1)
-    invalid = true
-    for valid in $validCharacters
-        if valid == codedPangram[index]
-            invalid = false
-            break
+while true
+    codedPangram = gets.chomp
+        
+    ####################### CLEANING USER INPUT CODED PANGRAM ##################################
+    ## Need to clean the input so that checking the full length against pangram full lengths is accurate
+    codedPangram = codedPangram.tr('\'', '')
+    codedPangram.downcase!
+    # Removing unwanted characters and replacing them with whitespace
+    for index in 0..(codedPangram.length - 1)
+        invalid = true
+        for valid in $validCharacters
+            if valid == codedPangram[index]
+                invalid = false
+                break
+            end
+        end
+        if invalid
+            codedPangram[index] = " "
         end
     end
-    if invalid
-        codedPangram[index] = " "
+    # Removing extra whitespace at beginning an end
+    codedPangram.strip!
+    # Removing back to back whitespaces
+    for index in 0..(codedPangram.length-2)
+        if ((codedPangram[index] == " " && codedPangram[index+1] == " " )|| (codedPangram[index] == " " && codedPangram[index-1] == " " ))
+            codedPangram[index] = ''
+        end
     end
-end
-# Removing extra whitespace at beginning an end
-codedPangram.strip!
-# Removing back to back whitespaces
-for index in 0..(codedPangram.length-2)
-    if ((codedPangram[index] == " " && codedPangram[index+1] == " " )|| (codedPangram[index] == " " && codedPangram[index-1] == " " ))
-        codedPangram[index] = ''
-    end
+
+    code = Pangram.new(codedPangram)
+
+    break if(code.strippedPangram.length >= 26)
+    puts "Not all letters are used, please input a pangram (a phrase that uses all 26 letters in the english alphabet:"
 end
 
-code = Pangram.new(codedPangram)
+puts "Would you like to compare the coded with english by English:Code (E) or Code:English (C):"
+while true
+    comparisonVersion = gets.chomp
+    comparisonVersion.upcase!
+    break if(comparisonVersion == 'E' || comparisonVersion == 'C')
+    puts "Invalid options...please input an E for English:Code or C for Code:English"
+end
 
-alreadyLost = false
+
 
 ##usedPangrams: the pangrams that the program thinks were used that the program then checks to make sure repeated letters/symbols are correct
 #   it is very unlikely that there would be more than 1 pangram in this but just in case this is a good way to try and figure it out
+#   If usedPangrams = nil then the code has already beaten the program
 
 ###### If the length of the pangram doesn't match the length of any stored pangram it beat the program
 if(!$pangrams.key?(code.strippedPangram.length))
     puts "The number of characters in the input does not match any stored pangram!"
-    alreadyLost = true
+    usedPangrams = nil
 
 ###### If the character length of the coded pangram matches only one stored pangram it must be that pangram
 elsif($pangrams[code.strippedPangram.length].length == 1)
@@ -299,12 +313,12 @@ else
     
     ###### If the total length of the coded pangram matches only one stored pangram it must be that pangram 
     if(sameLengthPangrams.length == 1)
-        usedPangrams = [sameLengthPangrams]
+        usedPangrams = sameLengthPangrams
     
     ###### If the total length of the coded pangram doesn't match any pangrams it beat the program
     elsif(sameLengthPangrams.length == 0)
         puts "The full length of the input does not match any stored pangram!"
-        alreadyLost = true
+        usedPangrams = nil
     
     ###### Otherwise considering only pangrams of the same character length and total length...
     else
@@ -313,19 +327,19 @@ else
         ###### If there are no saved pangrams that match the word lengths it beat the program
         if (usedPangrams == nil)
             puts "The word sizes and order for the input does not match any stored pangram!"
-            alreadyLost = true
+            usedPangrams = nil
             # No if/else for if there was a pangram found because either way it'll go into the checkRepeat section right after this
         end
     end
 end
 
-if(!alreadyLost)
+if(usedPangrams!=nil)
     # No need to check repeat letters if there are no repeated letters
     if(code.strippedPangram.length != 26)
         foundPangram = checkRepeat(code, usedPangrams)
 
     # If only 1 believed pangram it must be that one (as far as the program can tell)
-    elsif(usedPangrams.length = 1)
+    elsif(usedPangrams.length == 1)
         foundPangram = usedPangrams[0]
 
     # If more than (or less than somehow) possible pangrams the program cannot determine which pangram was used
@@ -336,7 +350,7 @@ if(!alreadyLost)
     if (foundPangram != nil)
         puts "Pangram is: ", foundPangram.fullPangram
         solveCode(code.strippedPangram, foundPangram.strippedPangram)
-        printCodeToEnglish
+        comparisonVersion == 'C' ? printCodeToEnglish : printEnglishToCode
     else
         puts "Cannot confidently determine the pangram."
     end
