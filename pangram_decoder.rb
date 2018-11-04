@@ -228,10 +228,12 @@ def PrintEnglishToCode()
 end
 
 ## May not work after changes
-def TestPangrams()
+def TestPangrams(list)
     pangramNumber = 1
     for listedPangram in list
-        strippedListed = Strip(listedPangram)
+        testPangram = Pangram.new(listedPangram)
+        strippedListed = testPangram.strippedPangram
+        lengthCode = strippedListed.length
 
         # If the length of the pangram doesn't match the length of any stored pangram it beat the program
         if(!$pangrams.key?(lengthCode))
@@ -239,7 +241,7 @@ def TestPangrams()
         elsif($pangrams[lengthCode].length == 1)
             puts pangramNumber.to_s + ":Success" #$pangrams[lengthCode][0].fullPangram
         else
-            ## Making sure SolveCode works
+            ## TODO: A LOT HAS CHANGED SINCE I MADE THIS...WOW
             usedPangram = findPangram(listedPangram, strippedListed)
             if (usedPangram == nil)
                 puts "Repeat char size, total size, and individual word sizes!"
@@ -266,7 +268,7 @@ for line in list
     # This is an if statement, if key in use append, otherwise make new key/value
     $pangrams.key?(newLine.length) ? $pangrams[newLine.length].push(Pangram.new(line)) : $pangrams[newLine.length] = [Pangram.new(line)] 
 end
-
+=begin
 ###################### Getting the user input code ##############################
 puts "Please input coded pangram (do not include any hyphens, commas, quotes, periods, etc. only the 'letters' and spaces):"
 
@@ -374,3 +376,6 @@ if(usedPangrams!=nil)
         puts "Cannot confidently determine the pangram."
     end
 end
+=end
+
+TestPangrams(list)
