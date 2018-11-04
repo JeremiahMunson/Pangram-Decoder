@@ -143,28 +143,27 @@ end
 # This checks the repeated character locations of the predicted pangram(s) against the repeated character locations in the code to ensure proper pangram is found
 # If 1 pangram matches that pangram must be the pangram used and returns that pangram, otherwise the program can't tell what pangram was used and returns nil 
 def CheckRepeat(code, pangrams)
-    #codeRepeats: Array of arrays where arrays are locations of repeated characters 
+    #codeRepeats: Array of arrays where arrays are locations of repeated characters for the code
     codeRepeats = Repeats(code)
 
-    #possiblePangrams: Array of pangrams that match 
+    #possiblePangrams: Array of pangrams that have the same locations of repeated characters
     possiblePangrams = Array.new()
 
     for pangram in pangrams
+        #pangramRepeats: Array of arrays where arrays are locations of repeated characters for the pangram
         pangramRepeats = Repeats(pangram)
 
         for index in (0..codeRepeats.length - 1)
             differentRepeats = true
-            for jindex in 0..(pangramRepeats.length - 1)
+            for jindex in 0..(pangramRepeats.length - 1) # like for(int i...) {for(int j...){}} in C/C++
                 differentRepeats = false if (codeRepeats[index] == pangramRepeats[jindex])
             end
-            if differentRepeats
-                break
-                # differentRepeats is then 'true' when it goes to checking if the pangram should be added to possiblePangrams
-            end
+            break if differentRepeats # differentRepeats is then 'true' when it goes to checking if the pangram should be added to possiblePangrams
         end
         # if the all the repeats are good differentRepeats will be false. if any repeats don't match up the loop above was broken and it's true
         possiblePangrams.push(pangram) if(!differentRepeats)
     end
+    # If 1 pangram matches that pangram must be the pangram used and returns that pangram, otherwise the program can't tell what pangram was used and returns nil 
     (possiblePangrams.length == 1) ? (return possiblePangrams[0]) : (return nil)
 end
 
@@ -186,7 +185,7 @@ def Repeats(phrase)
         if placement.length > 1
             phraseRepeats.push(placement)
         elsif placement.length < 1
-            puts "NOT A PANGRAM!"
+            puts "NOT A PANGRAM! PANGRAMS USE ALL 26 LETTERS IN THE ALPHABET AND THIS DOESN'T USE ALL OF THEM!"
         end
     end
     return phraseRepeats
