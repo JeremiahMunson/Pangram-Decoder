@@ -191,7 +191,9 @@ def Repeats(phrase)
     return phraseRepeats
 end
 
-# This uses the codeToEnglish and englishToCode hash tables into a key for the code
+# SolveCode(Pangram, Pangram): takes a Pangram (the code) and a Pangram (the pangram used for the code)
+# It "solves" the code by filling in $codeToEnglish and $englishToCode
+# returns nothing, just makes changes to global variables ^^
 def SolveCode(code, pangram)
     # did 'index in 0..pangram.length' instead of 'something in pangram' because it needs to go through pangram and code together and index like this works for both
     for index in 0..pangram.length
@@ -206,7 +208,7 @@ def SolveCode(code, pangram)
     end
 end
 
-# Prints code to english comparison
+# PrintCodeToEnglish(): Prints code to english comparison
 def PrintCodeToEnglish()
     puts "Code: English"
     for keys,vals in $codeToEnglish
@@ -216,7 +218,7 @@ def PrintCodeToEnglish()
     end
 end
 
-# Prints english to code comparison
+# PrintEnglishToCode(): Prints english to code comparison
 def PrintEnglishToCode()
     puts "English: Code"
     for valid in $validCharacters
@@ -228,8 +230,8 @@ end
 ## May not work after changes
 def TestPangrams()
     pangramNumber = 1
-    for codedPangram in list
-        strippedCode = Strip(codedPangram)
+    for listedPangram in list
+        strippedListed = Strip(listedPangram)
 
         # If the length of the pangram doesn't match the length of any stored pangram it beat the program
         if(!$pangrams.key?(lengthCode))
@@ -238,7 +240,7 @@ def TestPangrams()
             puts pangramNumber.to_s + ":Success" #$pangrams[lengthCode][0].fullPangram
         else
             ## Making sure SolveCode works
-            usedPangram = findPangram(codedPangram, strippedCode)
+            usedPangram = findPangram(listedPangram, strippedListed)
             if (usedPangram == nil)
                 puts "Repeat char size, total size, and individual word sizes!"
             else
@@ -316,11 +318,11 @@ end
 ##usedPangrams: the pangrams that the program thinks were used that the program then checks to make sure repeated letters/symbols are correct
 #   it is very unlikely that there would be more than 1 pangram in this but just in case this is a good way to try and figure it out
 #   If usedPangrams = nil then the code has already beaten the program
+usedPangrams = nil
 
 ###### If the length of the pangram doesn't match the length of any stored pangram it beat the program
 if(!$pangrams.key?(code.strippedPangram.length))
     puts "The number of characters in the input does not match any stored pangram!"
-    usedPangrams = nil
 
 ###### If the character length of the coded pangram matches only one stored pangram it must be that pangram
 elsif($pangrams[code.strippedPangram.length].length == 1)
@@ -337,7 +339,6 @@ else
     ###### If the total length of the coded pangram doesn't match any pangrams it beat the program
     elsif(sameLengthPangrams.length == 0)
         puts "The full length of the input does not match any stored pangram!"
-        usedPangrams = nil
     
     ###### Otherwise considering only pangrams of the same character length and total length...
     else
@@ -346,7 +347,6 @@ else
         ###### If there are no saved pangrams that match the word lengths it beat the program
         if (usedPangrams == nil)
             puts "The word sizes and order for the input does not match any stored pangram!"
-            usedPangrams = nil
             # No if/else for if there was a pangram found because either way it'll go into the CheckRepeat section right after this
         end
     end
