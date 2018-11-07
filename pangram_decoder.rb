@@ -268,7 +268,7 @@ for line in list
     # This is an if statement, if key in use append, otherwise make new key/value
     $pangrams.key?(newLine.length) ? $pangrams[newLine.length].push(Pangram.new(line)) : $pangrams[newLine.length] = [Pangram.new(line)] 
 end
-=begin
+
 ###################### Getting the user input code ##############################
 puts "Please input coded pangram (do not include any hyphens, commas, quotes, periods, etc. only the 'letters' and spaces):"
 
@@ -376,6 +376,5 @@ if(usedPangrams!=nil)
         puts "Cannot confidently determine the pangram."
     end
 end
-=end
 
-TestPangrams(list)
+#TestPangrams(list)
