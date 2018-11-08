@@ -16,7 +16,7 @@ $validCharacters = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 
 class Pangram
     def initialize(line)
         @fullPangram = line
-        @strippedPangram = Strip(line)
+        @strippedPangram = line.gsub(/\s+/, '')#Strip(line)
     end
 
     def fullPangram
@@ -264,7 +264,7 @@ end
 file.close
 
 for line in list
-    newLine = Strip(line)
+    newLine = line.gsub(/\s+/, '')#Strip(line)
     # This is an if statement, if key in use append, otherwise make new key/value
     $pangrams.key?(newLine.length) ? $pangrams[newLine.length].push(Pangram.new(line)) : $pangrams[newLine.length] = [Pangram.new(line)] 
 end
