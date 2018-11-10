@@ -28,7 +28,7 @@ class Pangram
 end
 
 ######## Functions #########
-
+=begin
 # Strip(String): takes a String and strips away all the unwanted characters such as white space, commas, quotes, dashes, etc. but should just be white space
 def Strip(line)
     #strippedLine: line with all the invalid characters stripped away, just the letters
@@ -43,6 +43,7 @@ def Strip(line)
     end
     return strippedLine
 end
+=end
 
 # FindPangramsSameTotalLength(Pangram): takes a Pangram (the code) and finds the pangrams that match the same length (letters and white space)
 # This is not necessary if there is only one pangram that matches the number of letters in the pangram 
@@ -111,7 +112,7 @@ end
 
 def SeperateWords(phrase)
     #word: array of characters where the array is a word
-    word = Array.new() # looking back I don't know why I made this an array, not a string...but it works and I don't want to mess with it right now, maybe later
+    word = String.new() # looking back I don't know why I made this an array, not a string...but it works and I don't want to mess with it right now, maybe later
     #words: array of arrays of characters where array of characters is a word 
     words = Array.new()
     
@@ -123,7 +124,7 @@ def SeperateWords(phrase)
         for valid in $validCharacters
             # A space should seperate words
             if (character == valid)
-                word.push(character)
+                word+=character
                 foundValid = true
                 break
             end
@@ -132,7 +133,7 @@ def SeperateWords(phrase)
         # added word.length > 0 to make sure it didn't do something weird in case there were back to back white spaces but this should never happen (but it doesn't hurt to be safe)
         if(!foundValid && word.length > 0)
             words.push(word)
-            word = Array.new() # needs to start from being empty so that the previous word isn't carried over into the next word
+            word = String.new() # needs to start from being empty so that the previous word isn't carried over into the next word
         end
     end
     return words
