@@ -55,6 +55,8 @@ class Pangram
         return true
     end
 
+    # SeperateWords (Pangram.fullPangram): Seperates a phrase into an array of words in the phrase
+    # returns array of strings where each string is a word in the phrase and the array as a whole is the phrase
     def SeperateWords(phrase)
         #word: array of characters where the array is a word
         word = String.new() # looking back I don't know why I made this an array, not a string...but it works and I don't want to mess with it right now, maybe later
@@ -107,7 +109,6 @@ class Pangram
         end
         return phraseRepeats
     end
-
 end
 
 ######## Functions #########
@@ -239,9 +240,12 @@ end
 ######################################## CHECKING INPUT AGAINST PANGRAMS ####################################################
 foundPangrams = Array.new()
 
-# Just have to go through the pangrams of the same length
-$pangrams[(code.strippedPangram).length].each do |pangram|
-    foundPangrams.push(pangram) if (code == pangram) #if pangram matches code length, word sizes and order, and repeated characters it is a possible match
+# If no pangrams with same number of characters can't find it
+if($pangrams.has_key?((code.strippedPangram).length))
+    # Just have to go through the pangrams of the same length
+    $pangrams[(code.strippedPangram).length].each do |pangram|
+        foundPangrams.push(pangram) if (code == pangram) #if pangram matches code length, word sizes and order, and repeated characters it is a possible match
+    end
 end
 
 # If one possible match found then it must be that, otherwise it can't be determined from given information
