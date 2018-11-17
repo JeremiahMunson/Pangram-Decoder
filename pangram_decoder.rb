@@ -14,8 +14,30 @@ $validCharacters = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 
 # Each pangram and the code become Pangram objects allowing for easier access to the full and stripped version of a single pangram
 class Pangram
     def initialize(line)
-        @fullPangram = line
-        @strippedPangram = line.gsub(/\s+/, '')
+        ####################### CLEANING USER INPUT CODED PANGRAM ##################################
+        ## Need to clean the input so that checking the full length against pangram full lengths is accurate
+        @fullPangram = line.tr('\'', '')
+        @fullPangram.downcase!
+        # Removing unwanted characters and replacing them with whitespace
+        for index in 0..(@fullPangram.length - 1)
+            invalid = true
+            $validCharacters.each do |valid|
+                if valid == @fullPangram[index]
+                    invalid = false
+                    break
+                end
+            end
+            @fullPangram[index] = " " if invalid
+        end
+        # Removing extra whitespace at beginning an end
+        @fullPangram.strip!
+        # Removing back to back whitespaces
+        for index in 0..(@fullPangram.length-2)
+            if ((@fullPangram[index] == " " && @fullPangram[index+1] == " " )|| (@fullPangram[index] == " " && @fullPangram[index-1] == " " ))
+                @fullPangram[index] = ''
+            end
+        end
+        @strippedPangram = @fullPangram.gsub(/\s+/, '')
     end
 
     def fullPangram
@@ -195,6 +217,7 @@ end
 puts "Please input coded pangram (do not include any hyphens, commas, quotes, periods, etc. only the 'letters' and spaces):"
 
 while true
+=begin
     codedPangram = gets.chomp
         
     ####################### CLEANING USER INPUT CODED PANGRAM ##################################
@@ -224,6 +247,8 @@ while true
     end
 
     code = Pangram.new(codedPangram)
+=end
+    code = Pangram.new(gets.chomp)
 
     break if(code.strippedPangram.length >= 26)
     puts "Not all letters are used, please input a pangram (a phrase that uses all 26 letters in the english alphabet:"
@@ -257,5 +282,5 @@ elsif(foundPangrams.length > 1)
     puts "Too many pangrams found, could not determine which one was used:"
     foundPangrams.each {|possible| puts possible.fullPangram} # Was used for some debugging but like having it in general
 else
-    puts "Could not find a pangram that matches coded pangram."
+    puts "Could not find a pangram that matches coded pangram: #{code.fullPangram}."
 end
