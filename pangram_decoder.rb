@@ -28,22 +28,6 @@ class Pangram
 end
 
 ######## Functions #########
-=begin
-# Strip(String): takes a String and strips away all the unwanted characters such as white space, commas, quotes, dashes, etc. but should just be white space
-def Strip(line)
-    #strippedLine: line with all the invalid characters stripped away, just the letters
-    strippedLine = String.new()
-    line.each_char do |character|
-        for valid in $validCharacters
-            if (character == valid) 
-                strippedLine+=character
-                break
-            end
-        end
-    end
-    return strippedLine
-end
-=end
 
 # FindPangramsSameTotalLength(Pangram): takes a Pangram (the code) and finds the pangrams that match the same length (letters and white space)
 # This is not necessary if there is only one pangram that matches the number of letters in the pangram 
@@ -52,7 +36,7 @@ def FindPangramsSameTotalLength(code)
     allPossiblePangrams = $pangrams[code.strippedPangram.length]
     #sameLengthPangrams: array of classes that pangram full length is equal to full length of coded pangram
     sameLengthPangrams = Array.new()
-    for pangramClasses in allPossiblePangrams
+    allPossiblePangrams.each do |pangramClasses|
         sameLengthPangrams.push(pangramClasses) if (pangramClasses.fullPangram.length == code.fullPangram.length)
     end
     return sameLengthPangrams
@@ -71,7 +55,7 @@ def FindPangramsSameWords(code, pangrams)
     
     # Filling sameLengthArray and sameLengthHash with pangrams
     numberIndex = 0
-    for phrase in pangrams
+    pangrams.each do |phrase|
         pangramAsArray = SeperateWords(phrase.fullPangram)
         sameLengthArray.push(pangramAsArray)
         sameLengthHash[pangramAsArray] = numberIndex
@@ -82,7 +66,7 @@ def FindPangramsSameWords(code, pangrams)
     sameWordsPangrams = Array.new()
 
     # Filling sameWordsPangrams with pangrams that have same word sizes as code
-    for pangramsRemaining in sameLengthArray
+    sameLengthArray.each do |pangramsRemaining|
         allWordsSameSize = true
         for index in 0..(codeWords.length-1)
             if codeWords[index].length != pangramsRemaining[index].length
@@ -121,7 +105,7 @@ def SeperateWords(phrase)
         # false = white space, true = valid letter
         foundValid = false
         # if the character is valid then add it to the word
-        for valid in $validCharacters
+        $validCharacters.each do |valid|
             # A space should seperate words
             if (character == valid)
                 word+=character
@@ -150,7 +134,7 @@ def CheckRepeat(code, pangrams)
     #possiblePangrams: Array of pangrams that have the same locations of repeated characters
     possiblePangrams = Array.new()
 
-    for pangram in pangrams
+    pangrams.each do |pangram|
         #pangramRepeats: Array of arrays where arrays are locations of repeated characters for the pangram
         pangramRepeats = Repeats(pangram)
 
@@ -181,7 +165,7 @@ def Repeats(phrase)
 
     # phraseRepeats: Array of arrays where the arrays are the locations of characters that appear more than once in the phrase
     phraseRepeats = Array.new()
-    for letters, placement in phraseLetters
+    phraseLetters.each do |letters, placement|
         # If it appears only once it doesn't matter, this is checking for repeated values
         if placement.length > 1
             phraseRepeats.push(placement)
@@ -212,7 +196,7 @@ end
 # PrintCodeToEnglish(): Prints code to english comparison
 def PrintCodeToEnglish()
     puts "Code: English"
-    for keys,vals in $codeToEnglish
+    $codeToEnglish.each do |keys,vals|
         break if(vals == nil)
         comparison = keys + ": " + vals
         puts comparison
@@ -222,7 +206,7 @@ end
 # PrintEnglishToCode(): Prints english to code comparison
 def PrintEnglishToCode()
     puts "English: Code"
-    for valid in $validCharacters
+    $validCharacters.each do |valid|
         comparison = valid + ": " + $englishToCode[valid]
         puts comparison
     end
@@ -231,7 +215,7 @@ end
 ## May not work after changes
 def TestPangrams(list)
     pangramNumber = 1
-    for listedPangram in list
+    list.each do |listedPangram|
         testPangram = Pangram.new(listedPangram)
         strippedListed = testPangram.strippedPangram
         lengthCode = strippedListed.length
@@ -264,7 +248,7 @@ while (line = file.gets)
 end
 file.close
 
-for line in list
+list.each do |line|
     newLine = line.gsub(/\s+/, '')#Strip(line)
     # This is an if statement, if key in use append, otherwise make new key/value
     $pangrams.key?(newLine.length) ? $pangrams[newLine.length].push(Pangram.new(line)) : $pangrams[newLine.length] = [Pangram.new(line)] 
@@ -283,7 +267,7 @@ while true
     # Removing unwanted characters and replacing them with whitespace
     for index in 0..(codedPangram.length - 1)
         invalid = true
-        for valid in $validCharacters
+        $validCharacters.each do |valid|
             if valid == codedPangram[index]
                 invalid = false
                 break
