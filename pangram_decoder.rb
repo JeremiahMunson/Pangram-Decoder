@@ -14,8 +14,8 @@ $validCharacters = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 
 # Each pangram and the code become Pangram objects allowing for easier access to the full and stripped version of a single pangram
 class Pangram
     def initialize(line)
-        ####################### CLEANING USER INPUT CODED PANGRAM ##################################
-        ## Need to clean the input so that checking the full length against pangram full lengths is accurate
+        ####################### CLEANING PANGRAM ##################################
+        ## Need to clean the pangram to make sure it is just lowercase letters and single spaces between words with no extra spaces at the beginning or end
         @fullPangram = line.tr('\'', '')
         @fullPangram.downcase!
         # Removing unwanted characters and replacing them with whitespace
@@ -217,37 +217,6 @@ end
 puts "Please input coded pangram (do not include any hyphens, commas, quotes, periods, etc. only the 'letters' and spaces):"
 
 while true
-=begin
-    codedPangram = gets.chomp
-        
-    ####################### CLEANING USER INPUT CODED PANGRAM ##################################
-    ## Need to clean the input so that checking the full length against pangram full lengths is accurate
-    codedPangram = codedPangram.tr('\'', '')
-    codedPangram.downcase!
-    # Removing unwanted characters and replacing them with whitespace
-    for index in 0..(codedPangram.length - 1)
-        invalid = true
-        $validCharacters.each do |valid|
-            if valid == codedPangram[index]
-                invalid = false
-                break
-            end
-        end
-        if invalid
-            codedPangram[index] = " "
-        end
-    end
-    # Removing extra whitespace at beginning an end
-    codedPangram.strip!
-    # Removing back to back whitespaces
-    for index in 0..(codedPangram.length-2)
-        if ((codedPangram[index] == " " && codedPangram[index+1] == " " )|| (codedPangram[index] == " " && codedPangram[index-1] == " " ))
-            codedPangram[index] = ''
-        end
-    end
-
-    code = Pangram.new(codedPangram)
-=end
     code = Pangram.new(gets.chomp)
 
     break if(code.strippedPangram.length >= 26)
