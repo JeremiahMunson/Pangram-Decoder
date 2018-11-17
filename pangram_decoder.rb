@@ -26,23 +26,32 @@ class Pangram
     end
 
     def ==(other)
+        # If other doesn't match the size of this pangram it can't be a match
         return false if (other.strippedPangram.length != @strippedPangram.length)
+        return false if (other.fullPangram.length != @fullPangram.length)
+
+        # If sizing matches then find number of words and size of each word
+        # If number of words and/or size of each word (in order) doesn't match not the same
         theseWords = SeperateWords(@fullPangram)
         otherWords = SeperateWords(other.fullPangram) 
         return false if (theseWords.length != otherWords.length)
         for index in 0..(theseWords.length - 1)
             return false if(theseWords[index].length != otherWords[index].length)
         end
+        # If it's a pure pangram with just 26 characters that's all this can check for so it's a match
         return true if (@strippedPangram.length == 26)
+
+        # If the pangram has more than 26 characters this checks to see whether or not the repeated characters match
         thisRepeats = Repeats(@strippedPangram)
         otherRepeats = Repeats(other.strippedPangram)
-        for index in (0..thisRepeats.length - 1)
+        # May not be in the same order so have to loop through both
+        thisRepeats.each do |thisCharRepeat|
             differentRepeats = true
-            for jindex in 0..(otherRepeats.length - 1) # like for(int i...) {for(int j...){}} in C/C++
-                (differentRepeats = false) if (thisRepeats[index] == otherRepeats[jindex])
-            end
-            return false if differentRepeats # differentRepeats is then 'true' when it goes to checking if the pangram should be added to possiblePangrams
+            otherRepeats.each {|otherCharRepeat| differentRepeats = false if (thisCharRepeat == otherCharRepeat)}
+            return false if differentRepeats
         end
+
+        # If it gets here without returning false it's a match
         return true
     end
 
@@ -230,23 +239,19 @@ end
 ######################################## CHECKING INPUT AGAINST PANGRAMS ####################################################
 foundPangrams = Array.new()
 
+# Just have to go through the pangrams of the same length
 $pangrams[(code.strippedPangram).length].each do |pangram|
-    foundPangrams.push(pangram) if (code == pangram)
+    foundPangrams.push(pangram) if (code == pangram) #if pangram matches code length, word sizes and order, and repeated characters it is a possible match
 end
 
+# If one possible match found then it must be that, otherwise it can't be determined from given information
 if (foundPangrams.length == 1)
     puts foundPangrams[0].fullPangram
     SolveCode(code.strippedPangram, foundPangrams[0].strippedPangram)
-    if(comparisonVersion == 'E')
-        PrintEnglishToCode() 
-    else
-        PrintCodeToEnglish()
-    end
+    comparisonVersion == 'E' ? PrintEnglishToCode() : PrintCodeToEnglish()
 elsif(foundPangrams.length > 1)
     puts "Too many pangrams found, could not determine which one was used:"
-    foundPangrams.each do |possible|
-        puts possible.fullPangram
-    end
+    foundPangrams.each {|possible| puts possible.fullPangram} # Was used for some debugging but like having it in general
 else
-    puts "Could not find a pangram that matches coded pangram"
+    puts "Could not find a pangram that matches coded pangram."
 end
